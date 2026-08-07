@@ -1,98 +1,59 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Feature Flag Interceptor
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS mini-project demonstrating how to use a global interceptor to conditionally modify API responses based on an environment-driven feature flag — without touching the controller logic.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## How It Works
 
-## Description
+- `GET /profile` returns a profile object that includes a `secretFeature` field (representing a feature still in testing).
+- A global `FeatureFlagInterceptor` intercepts every outgoing response.
+- It reads the `SHOW_SECRET_FEATURE` flag from `.env` via `ConfigService`.
+- If the flag is `"false"`, the `secretFeature` field is stripped from the response before it reaches the client.
+- If the flag is `"true"`, the response is returned unchanged.
+- The controller itself never changes — toggling the flag in `.env` is enough to turn the field on or off everywhere it's used.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## Setup
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Compile and run the project
+Create a `.env` file in the project root:
+
+```
+SHOW_SECRET_FEATURE=false
+```
+
+## Running
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm run start:dev
 ```
 
-## Run tests
+The server runs on `http://localhost:3000`.
 
-```bash
-# unit tests
-$ pnpm run test
+## Testing
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```
+GET /profile
 ```
 
-## Deployment
+- `SHOW_SECRET_FEATURE=false` → response has only `username` and `email`.
+- `SHOW_SECRET_FEATURE=true` → response also includes `secretFeature`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+(Restart the server after changing `.env` to make sure the new value is picked up.)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Tech Stack
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+- NestJS
+- `@nestjs/config` (for reading `.env`)
+- RxJS (`Observable`, `pipe`, `map`)
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## What I Learned
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Writing a custom interceptor using the `NestInterceptor` interface and `intercept()` method
+- The role of `CallHandler` and `next.handle()` — it returns an `Observable` that only runs the controller once subscribed to (NestJS subscribes to it automatically)
+- Using `.pipe()` and `map()` from RxJS to transform the response stream before it reaches the client
+- The core difference between a Guard (only decides pass/reject, can't touch the response), a Filter (only runs on errors), and an Interceptor (can transform both request handling and the successful response)
+- Removing a field from an object using destructuring (`const { field, ...rest } = obj`)
+- Registering a global interceptor using the `APP_INTERCEPTOR` token (same pattern as `APP_GUARD` and `APP_FILTER`)
+- Values read from `.env` are always strings, so `"false"` must be compared as a string, not a boolean
